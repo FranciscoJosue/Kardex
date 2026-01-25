@@ -12,6 +12,7 @@ class ProductColor(models.Model):
 
     def __str__(self):
         return self.name
+    
 class ProductSize(models.Model):
     name = models.CharField(max_length=10)
 
@@ -21,8 +22,8 @@ class ProductSize(models.Model):
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    color = models.ForeignKey(ProductColor, on_delete=models.CASCADE)
-    size = models.ForeignKey(ProductSize, on_delete=models.CASCADE)
+    color = models.ForeignKey(ProductColor)
+    size = models.ForeignKey(ProductSize)
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -45,3 +46,15 @@ class ProductEan(models.Model):
 
     def __str__(self):
         return self.ean or ''
+
+
+class PriceType(models.TextChoices):
+    preco = 'P', 'Preço'
+    custo = 'C', 'Custo'
+
+
+class ProductPrice(models.Model):
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='prices')
+    price_type = models.CharField(max_length=1, choices=PriceType.choices)
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+    update_at = models.DateTimeField(auto_now=True)
